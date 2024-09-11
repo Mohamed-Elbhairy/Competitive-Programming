@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "e:/CppApps/Competitive Programming/MostafaSaadSheet",
-      "program": "e:/CppApps/Competitive Programming/MostafaSaadSheet/build/Debug/outDebug",
+      "cwd": "e:/CppApps/Competitive Programming",
+      "program": "e:/CppApps/Competitive Programming/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
