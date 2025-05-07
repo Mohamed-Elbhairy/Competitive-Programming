@@ -1,7 +1,13 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
+
+#include <unordered_map>
 using namespace std;
-#define B7AIRY ios_base::sync_with_stdio(0); cin.tie(0); cout.tie(0);
-#define vin(S, E, N) for(int i = S; i < E; i++) cin >> N[i];
+#define B7AIRY                  \
+  ios_base::sync_with_stdio(0); \
+  cin.tie(0);                   \
+  cout.tie(0);
+#define vin(S, E, N) \
+  for (int i = S; i < E; i++) cin >> N[i];
 #define v(T, NAME, SIZE) deque<T> NAME(SIZE);
 #define all(x) x.begin(), x.end()
 #define allr(x) x.rbegin(), x.rend()
@@ -17,16 +23,38 @@ const ll N = 2e5 + 10, mod = 1e9 + 7;
 const int dx[] = { 1, -1, 0, 0, 1, -1, 1, -1 };
 const int dy[] = { 0, 0, 1, -1, 1, 1, -1, -1 };
 void solution() {
+ 
+ int n; cin >> n;
+        int arr[100];
+        for (size_t i = 0; i < n; i++)
+        {
+            cin >> arr[i];
+        }
+        bool x = 0;
+        for (size_t i = 1; i < n; i++)
+        {
+         
+            
+                if (abs(arr[i] - arr[i-1]) != 5 && abs(arr[i] - arr[i-1]) != 7) {
+                    x = 1;
+                }
+            
+        }
+        if (!x)cout << "yes\n";
+        else cout << "no\n";
 }
 int main() {
     B7AIRY
-    #ifndef ONLINE_JUDGE
-      freopen("input.txt", "r", stdin);
-    freopen("output.txt", "w", stdout);
-    #endif
+#ifndef ONLINE_JUDGE
+         freopen("input.txt", "r",  stdin);
+        freopen("output.txt", "w", stdout);
+#endif
+ 
         int t = 1;
-     cin >> t;
+    // cin >> t;
+ 
     for (int i = 1; i <= t; i++) {
+        // cout << "Case #" << i << ": ";
         solution();
     }
 }
