@@ -1,59 +1,70 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
 class SegmentTree {
 private:
-    vector<int> Seg, Lazy;
-    int sz, n;
-    void Propegate(int l, int r, int node) { //edit
-        /*if (Lazy[node] == -1)return;
-        Seg[node] = Lazy[node] *(r-l+1);
-        if (l != r) {
-            Lazy[2 * node + 1] = Lazy[node];
-            Lazy[2 * node + 2] = Lazy[node];
+    struct Node {
+        Node(int val) {}
+        Node() {}
+    };
+    vector< Node > Seg;
+    int Size, n, Skip;
 
-        }
-        Lazy[node] = -1;*/
+    Node Merge(const Node &L, const Node &R) {
+        Node node;
+        // opration
+        return node;
     }
-    int Merge(int L ,int R) {
-        return L+R ; // edite
-    }
-    void Update(int l, int r, int node, int lq, int rq, int val) {
-        Propegate(l, r, node);
-        if (l > rq || r < lq)return;
-        if (lq <= l and r <= rq) {
-            Lazy[node] = val;
-            Propegate(l, r, node);
+    void Update(int l, int r, int node, int idx, int val) {
+        if ( l == r ) {
+            // opration
             return;
         }
-        int mid = l + r >> 1;
-        Update(l, mid, 2 * node + 1, lq, rq, val);
-        Update(mid + 1, r, 2 * node + 2, lq, rq, val);
-        Seg[node] = (Seg[node * 2 + 1]+Seg[node * 2 + 2]);
+        int mid = (l + r) / 2;
+
+        if ( idx <= mid )
+            Update(l, mid, 2 * node + 1, idx, val);
+        else
+            Update(mid + 1, r, 2 * node + 2, idx, val);
+
+        Seg[node] = Merge(Seg[node * 2 + 1], Seg[node * 2 + 2]);
     }
-    int Query(int l, int r, int node, int lq, int rq) {
-        Propegate(l, r, node);
-        if (lq > r || rq < l)return 0;
-        if (lq <= l and r <= rq) {
+    Node Query(int l, int r, int node, int lq, int rq) {
+        if ( lq > r || rq < l )
+            return Node(Skip);
+        if ( lq <= l && rq >= r )
             return Seg[node];
+        int mid = (l + r) / 2;
+        return Merge(Query(l, mid, 2 * node + 1, lq, rq), Query(mid + 1, r, 2 * node + 2, lq, rq));
+    }
+    void Build(int l, int r, int node, vector< int > &v) {
+        if ( l == r ) {
+            if ( l < v.size() ) {
+                // opration
+            }
+            return;
         }
-        int mid = l + r >> 1;
-        return (Query(l, mid, 2 * node + 1, lq, rq)+ Query(mid + 1, r, 2 * node + 2, lq, rq));
+        int mid = (l + r) / 2;
+        Build(l, mid, 2 * node + 1, v);
+        Build(mid + 1, r, 2 * node + 2, v);
+        Seg[node] = Merge(Seg[node * 2 + 1], Seg[node * 2 + 2]);
     }
 
 public:
-    SegmentTree(int _n) {
-        sz = 1;
-        while (sz < _n) sz <<= 1;
-        Seg = vector<int>(sz << 1);
-    //    Lazy = vector<int>(sz << 1,-1); if needed
+    SegmentTree(int _n, int _Skip) {
+        Size = 4 * _n;
+        Skip = _Skip;
+        Seg = vector< Node >(Size, Node(Skip));
         n = _n;
     }
+    SegmentTree(vector< int > &v, int _Skip) {
+        n = v.size();
+        Skip = _Skip;
+        Size = 4 * n;
+        Seg = vector< Node >(Size, Node(Skip));
+        Build(0, n - 1, 0, v);
+    }
     int Query(int l, int r) {
-
-        return Query(0, sz - 1, 0, l, r);
+        // return Query(0, n - 1, 0, l, r);
     }
-
-    void Update(int l, int r, int val) {
-        Update(0, sz - 1, 0, l, r, val);
-    }
+    void Update(int l, int r, int val) { Update(0, Size - 1, 0, r, val); }
 };

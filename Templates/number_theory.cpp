@@ -188,3 +188,70 @@ namespace combinatorics
     }
 };
 using namespace combinatorics;
+#define MAXN 1e7 + 1
+vector< int > spf(MAXN + 1, 1);
+void sieve() {
+
+    spf[0] = 0;
+    for ( int i = 2; i <= MAXN; i++ ) {
+        if ( spf[i] == 1 ) {
+
+            for ( int j = i; j <= MAXN; j += i ) {
+                if ( spf[j] == 1 )
+                    spf[j] = i;
+            }
+        }
+    }
+}
+vector< int > getFactorization(int x) {
+    vector< int > ret;
+    while ( x != 1 ) {
+        ret.push_back(spf[x]);
+        x = x / spf[x];
+    }
+    return ret;
+}
+__int128 read() {
+    __int128 x = 0, f = 1;
+    char ch = getchar();
+    while (ch < '0' || ch > '9') {
+        if (ch == '-') f = -1;
+        ch = getchar();
+    }
+    while (ch >= '0' && ch <= '9') {
+        x = x * 10 + ch - '0';
+        ch = getchar();
+    }
+    return x * f;
+}
+void print(__int128 x) {
+    if (x < 0) {
+        putchar('-');
+        x = -x;
+    }
+    if (x > 9) print(x / 10);
+    putchar(x % 10 + '0');
+
+}
+bool cmp(__int128 x, __int128 y) { return x > y; }
+struct modified_hash {
+
+    static uint64_t splitmix64(uint64_t x)
+    {
+        x += 0x9e3779b97f4a7c15;
+        x = (x ^ (x >> 30))
+            * 0xbf58476d1ce4e5b9;
+        x = (x ^ (x >> 27))
+            * 0x94d049bb133111eb;
+        return x ^ (x >> 31);
+    }
+
+    int operator()(uint64_t x) const
+    {
+        static const uint64_t random
+            = steady_clock::now()
+            .time_since_epoch()
+            .count();
+        return splitmix64(x + random);
+    }
+};

@@ -9,7 +9,7 @@ struct Query {
     }
     bool operator <(const Query& Q)const {
         if (Q.Blk_idx == Blk_idx) {
-            return r < Q.r;
+            return ((Blk_idx&1)? r < Q.r:r>Q.r);
         }
         return Blk_idx < Q.Blk_idx;
     }
@@ -21,48 +21,35 @@ int q;
 int n;
 int k;
 void add(int idx) {
-    ret -= freq[k ^ v[idx]];
-    freq[v[idx]]++;
-    ret += freq[k ^ v[idx]];
+
 }
 void remove(int idx) {
-    ret -= freq[k ^ v[idx]];
-    freq[v[idx]]--;
-    ret += freq[k ^ v[idx]];
+
 }
 void Mo_INIT() {
-    int l = 2, r = 1;
+    int l = 0, r = -1;
     sort(queries, queries + q);
     for (int i = 0; i < q; i++) {
         int L = queries[i].l;
         int R = queries[i].r;
         int Idx = queries[i].Q_idx;
-        while (l < L)remove(l++);
         while (l > L)add(--l);
         while (r < R)add(++r);
+        while (l < L)remove(l++);
         while (r > R)remove(r--);
         ans[Idx] = ret;
     }
 }
 void solution() {
-    cin >> n >> q >> k;
-    vector<int>a(n);
+    cin >> n >> q ;
     for (int i = 0; i < n; i++)
-        cin >> a[i];
-    for (int i = 1; i <= n; i++) {
-        v[i] = (v[i - 1] ^ a[i - 1]);
-    }
-    freq[0]++;
+        cin >> v[i];
     for (int i = 0; i < q; i++) {
         int l, r; cin >> l >> r;
-
         queries[i] = Query(l - 1, r, i);
     }
     Mo_INIT();
     for (int i = 0; i < q; i++) {
         cout << ans[i] << '\n';
     }
-
-
-
 }
