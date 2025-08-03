@@ -4,16 +4,24 @@ private:
     ll base1, base2, Hash1, Hash2, inv1, inv2, *pw1, *pw2, len;
     vi pre1, pre2;
     deque< char > d;
+
     ll power(ll a, ll b, ll m) {
         ll ans = 1;
         while ( b > 0 ) {
-            if ( b & 1 ) {
+            if ( b & 1 )
                 ans = (ans * a) % m;
-            }
             a = (a * a) % m;
             b >>= 1;
         }
         return ans;
+    }
+
+    pl uniform_hash(int dgt, int cnt) {
+        ll s1 = (pw1[cnt] - 1 + mod1) % mod1;
+        s1 = s1 * inv1 % mod1;
+        ll s2 = (pw2[cnt] - 1 + mod2) % mod2;
+        s2 = s2 * inv2 % mod2;
+        return {(dgt * s1 % mod1), (dgt * s2 % mod2)};
     }
 
 public:
@@ -21,52 +29,41 @@ public:
         base1 = x;
         base2 = y;
         Hash1 = Hash2 = len = 0;
-        inv1 = power(x, mod1 - 2, mod1);
-        inv2 = power(y, mod2 - 2, mod2);
+        inv1 = power(base1 - 1, mod1 - 2, mod1);
+        inv2 = power(base2 - 1, mod2 - 2, mod2);
         pw1 = new ll[sz + 1];
         pw2 = new ll[sz + 1];
         pw1[0] = pw2[0] = 1;
         for ( int i = 1; i <= sz; i++ ) {
-            pw1[i] = (x * pw1[i - 1]) % mod1;
-            pw2[i] = (y * pw2[i - 1]) % mod2;
+            pw1[i] = (base1 * pw1[i - 1]) % mod1;
+            pw2[i] = (base2 * pw2[i - 1]) % mod2;
         }
     }
-    Hashing(string &s, int _base1 = 127, int _base2 = 131) {
-        len = 0;
-        base1 = _base1;
-        base2 = _base2;
-        pw1 = new ll[s.size() + 1];
-        pw2 = new ll[s.size() + 1];
-        pw1[0] = pw2[0] = 1;
+
+    Hashing(string &s, int _base1 = 127, int _base2 = 131) : Hashing(( int ) s.size(), _base1, _base2) {
+        len = s.size();
+        pre1.assign(len + 1, 0);
+        pre2.assign(len + 1, 0);
         Hash1 = Hash2 = 0;
-        for ( int i = 1; i < s.size() + 1; i++ ) {
-            pw1[i] = (1LL * pw1[i - 1] * base1) % mod1;
-            pw2[i] = (1LL * pw2[i - 1] * base2) % mod2;
-        }
-        pre1 = vi(s.size() + 1);
-        pre2 = vi(s.size() + 1);
-        for ( int i = 0; i < s.size(); i++ ) {
-            Hash1 = (1LL * Hash1 * base1) % mod1;
-            Hash2 = (1LL * Hash2 * base2) % mod2;
-            Hash1 = (Hash1 + (s[i] - 'a' + 1)) % mod1;
-            Hash2 = (Hash2 + (s[i] - 'a' + 1)) % mod2;
-            pre1[i] = Hash1;
-            pre2[i] = Hash2;
+        for ( int i = 0; i < ( int ) s.size(); i++ ) {
+            Hash1 = (Hash1 * base1 + (s[i] - 'a' + 1)) % mod1;
+            Hash2 = (Hash2 * base2 + (s[i] - 'a' + 1)) % mod2;
+            pre1[i + 1] = Hash1;
+            pre2[i + 1] = Hash2;
         }
     }
+
     void push_back(char x) {
         x = x - 'a' + 1;
-        Hash1 = (Hash1 * base1) % mod1;
-        Hash1 = (Hash1 + x) % mod1;
-        Hash2 = (Hash2 * base2) % mod2;
-        Hash2 = (Hash2 + x) % mod2;
+        Hash1 = (Hash1 * base1 + x) % mod1;
+        Hash2 = (Hash2 * base2 + x) % mod2;
         len++;
         d.emplace_back(x);
     }
     void push_front(char x) {
         x = x - 'a' + 1;
-        Hash1 = (Hash1 + (x * pw1[len]) % mod1) % mod1;
-        Hash2 = (Hash2 + (x * pw2[len]) % mod2) % mod2;
+        Hash1 = (Hash1 + x * pw1[len] % mod1) % mod1;
+        Hash2 = (Hash2 + x * pw2[len] % mod2) % mod2;
         len++;
         d.emplace_front(x);
     }
@@ -87,29 +84,44 @@ public:
         char x = d.front();
         d.pop_front();
         len--;
-        Hash1 = ((Hash1 - x * pw1[len] % mod1) + mod1) % mod1;
-        Hash2 = ((Hash2 - x * pw2[len] % mod2) + mod2) % mod2;
+        Hash1 = (Hash1 - x * pw1[len] % mod1 + mod1) % mod1;
+        Hash2 = (Hash2 - x * pw2[len] % mod2 + mod2) % mod2;
     }
     void clear() {
         Hash1 = Hash2 = len = 0;
         d.clear();
     }
-    bool operator==(const Hashing &H) const { return H.Hash1 == Hash1 && H.Hash2 == Hash2; }
-    string GetString() { return string(d.begin(), d.end()); }
-    pair< int, int > GetHash() { return {Hash1, Hash2}; }
+
+    pl Merge(pl H1, pl H2, int sz) {
+        return {((H1.first * pw1[sz] + H2.first) % mod1), ((H1.second * pw2[sz] + H2.second) % mod2)};
+    }
+
     pair< int, int > GetHash(int l, int r) {
-        pair< int, int > ret = {pre1[r], pre2[r]};
+        if ( l < 0 )
+            l = 0;
+        if ( r < l )
+            return {0, 0};
         int sz = r - l + 1;
-        --l;
-        if ( l >= 0 ) {
-            ret.first -= (1LL * pre1[l] * pw1[sz]) % mod1;
-            if ( ret.first < 0 )
-                ret.first += mod1;
-            ret.second -= (1LL * pre2[l] * pw2[sz]) % mod2;
-            if ( ret.second < 0 )
-                ret.second += mod2;
+        ll v1 = (pre1[r + 1] - pre1[l] * pw1[sz]) % mod1;
+        if ( v1 < 0 )
+            v1 += mod1;
+        ll v2 = (pre2[r + 1] - pre2[l] * pw2[sz]) % mod2;
+        if ( v2 < 0 )
+            v2 += mod2;
+        return {(v1), (v2)};
+    }
+
+    pl Get(const vi &f) {
+        pl H = {0, 0};
+        for ( int i = 0; i < 10; ++i ) {
+            int cnt = f[i];
+            if ( !cnt )
+                continue;
+            int dgt = i + 1;
+            pl block = uniform_hash(dgt, cnt);
+            H = Merge(H, block, cnt);
         }
-        return ret;
+        return H;
     }
     // bool pal(int l,int r)
     // {

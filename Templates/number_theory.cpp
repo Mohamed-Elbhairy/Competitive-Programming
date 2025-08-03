@@ -188,30 +188,7 @@ namespace combinatorics
     }
 };
 using namespace combinatorics;
-#define MAXN 1e7 + 1
-vector< int > spf(MAXN + 1, 1);
-void sieve() {
-
-    spf[0] = 0;
-    for ( int i = 2; i <= MAXN; i++ ) {
-        if ( spf[i] == 1 ) {
-
-            for ( int j = i; j <= MAXN; j += i ) {
-                if ( spf[j] == 1 )
-                    spf[j] = i;
-            }
-        }
-    }
-}
-vector< int > getFactorization(int x) {
-    vector< int > ret;
-    while ( x != 1 ) {
-        ret.push_back(spf[x]);
-        x = x / spf[x];
-    }
-    return ret;
-}
-__int128 read() {
+  __int128 read() {
     __int128 x = 0, f = 1;
     char ch = getchar();
     while (ch < '0' || ch > '9') {
@@ -255,3 +232,27 @@ struct modified_hash {
         return splitmix64(x + random);
     }
 };
+#define MAXN 1e7 + 1
+vector< int > spf(MAXN + 1, 1);
+void sieve() {
+
+    spf[0] = 0;
+    for ( int i = 2; i <= MAXN; i++ ) {
+        if ( spf[i] == 1 ) {
+
+            for ( int j = i; j <= MAXN; j += i ) {
+                if ( spf[j] == 1 )
+                    spf[j] = i;
+            }
+        }
+    }
+}
+vector< int > getFactorization(int x) {
+    vector< int > ret;
+    while ( x != 1 ) {
+        ret.push_back(spf[x]);
+        x = x / spf[x];
+    }
+    return ret;
+}
+
